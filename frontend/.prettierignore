@@ -1,0 +1,17 @@
+# Dependências e build do Vite
+node_modules
+dist
+dist-ssr
+*.local
+
+# Arquivos gerados pelo TanStack Router
+src/routeTree.gen.ts
+
+# Arquivos de lock e logs
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.log
+
+# Testes e cobertura
+coverage
