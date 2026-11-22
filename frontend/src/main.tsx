@@ -6,11 +6,19 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { z } from 'zod'
 
+import { ApiError } from './lib/api/errors.ts'
 import { routeTree } from './routeTree.gen.ts'
 
 z.config(z.locales.ptBR())
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) =>
+        !(error instanceof ApiError && error.status < 500) && failureCount < 3,
+    },
+  },
+})
 const router = createRouter({ routeTree, context: { queryClient } })
 
 declare module '@tanstack/react-router' {
