@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Arquivos temporários do TanStack Router
+.tanstack
+
+# Cobertura de testes
+coverage
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
