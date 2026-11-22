@@ -4,12 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { z } from 'zod'
 
 import { ApiError } from './lib/api/errors.ts'
 import { routeTree } from './routeTree.gen.ts'
-
-z.config(z.locales.ptBR())
 
 const queryClient = new QueryClient({
   defaultOptions: {
