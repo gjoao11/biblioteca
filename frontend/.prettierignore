@@ -15,3 +15,6 @@ pnpm-lock.yaml
 
 # Testes e cobertura
 coverage
+
+# Arquivos gerados pelo OpenAPI Typescript
+src/lib/api/schema.d.ts

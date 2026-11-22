@@ -9,7 +9,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
-  globalIgnores(['dist', 'src/routeTree.gen.ts']),
+  globalIgnores(['dist', 'src/routeTree.gen.ts', 'src/lib/api/schema.d.ts']),
   ...pluginQuery.configs['flat/recommended'],
   {
     files: ['**/*.{ts,tsx}'],
