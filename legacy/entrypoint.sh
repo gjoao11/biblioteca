@@ -27,5 +27,3 @@ chmod -R 777 app/storage
 php artisan migrate --force
 
 exec "$@"
-EOF
-chmod +x entrypoint.sh

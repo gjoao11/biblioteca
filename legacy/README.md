@@ -52,7 +52,14 @@ Dentro de `legacy/`:
 
    Na primeira vez, o app instala as dependências (`composer install`) e roda as migrations. Espere a linha `resuming normal operations` do Apache.
 
-5. Abrir http://127.0.0.1:8080.
+5. Criar o usuário de teste (só precisa na primeira vez; se o usuário já existir, nada é alterado):
+
+   ```bash
+   docker compose cp seed-user.php app:/var/www/html/seed-user.php
+   docker compose exec app php seed-user.php
+   ```
+
+6. Abrir http://127.0.0.1:8081 e entrar com o usuário de teste (veja abaixo).
 
 ## O que o ambiente faz sozinho
 
@@ -70,18 +77,9 @@ Credenciais fictícias para uso exclusivo na demonstração local:
 
 - Usuário: `bibliotecario`
 - Senha: `DemoBiblioteca123`
-- Login: http://127.0.0.1:8080/sign-in
+- Login: http://127.0.0.1:8081/sign-in
 
-Após subir os contêineres e concluir as migrations, execute dentro
-de `legacy/`:
-
-    docker compose cp seed-user.php app:/tmp/seed-user.php
-    docker compose exec app sh -c 'cd /var/www/html && cp /tmp/seed-user.php ./seed-user.php && php ./seed-user.php'
-
-O script cria o usuário apenas se o login ainda não existir.
-Se já existir, não altera a senha nem os demais dados.
-
-Não reutilize essas credenciais fora do ambiente local.
+Crie o usuário com o passo 5 de "Como subir". Não reutilize essas credenciais fora do ambiente local.
 
 ## Telas
 
