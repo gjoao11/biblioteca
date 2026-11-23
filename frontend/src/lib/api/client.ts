@@ -20,5 +20,9 @@ const csrfMiddleware: Middleware = {
   },
 }
 
-export const api = createClient<paths>({ baseUrl: window.location.origin })
+export const api = createClient<paths>({
+  baseUrl: window.location.origin,
+  // Resolve o fetch a cada chamada para o MSW dos testes conseguir interceptar.
+  fetch: (request) => globalThis.fetch(request),
+})
 api.use(csrfMiddleware)

@@ -12,7 +12,7 @@ export class ApiError extends Error {
   readonly problem: ProblemDetail
 
   constructor(problem: ProblemDetail) {
-    super(problem.detail ?? problem.title ?? `Erro HTTP ${problem.status}`)
+    super(problem.detail ?? problem.title ?? `HTTP error ${problem.status}`)
     this.name = 'ApiError'
     this.status = problem.status
     this.problem = problem
