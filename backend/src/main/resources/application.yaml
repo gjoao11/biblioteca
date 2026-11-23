@@ -1,18 +1,31 @@
 spring:
   application:
     name: backend
+  config:
+    import: optional:file:.env[.properties]
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
     properties:
       hibernate.jdbc.time_zone: UTC
-  mvc:
-    problemdetails:
-      enabled: true
+  web:
+    # Interface toda em inglês: mensagens de validação não seguem o Accept-Language do navegador.
+    locale: en
+    locale-resolver: fixed
   docker:
     compose:
       lifecycle-management: start_only
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+
+springdoc:
+  # Sem isso as respostas saem como */* no OpenAPI.
+  default-produces-media-type: application/json
 
 management:
   endpoints:
@@ -20,3 +33,9 @@ management:
       exposure:
         include:
           - health
+
+app:
+  admin:
+    username: ${APP_ADMIN_USERNAME:}
+    name: ${APP_ADMIN_NAME:Administrator}
+    password: ${APP_ADMIN_PASSWORD:}
