@@ -20,6 +20,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/students/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["rejectStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/students/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["approveStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/student-registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["registerStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listLoans"];
+        put?: never;
+        post: operations["issueLoan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/loans/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["returnLoan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/books": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listBooks"];
+        put?: never;
+        post: operations["createBook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/logout": {
         parameters: {
             query?: never;
@@ -68,6 +164,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listStudents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/students/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getStudent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/students/years": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listStudentYears"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/student-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listStudentCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/books": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchPublicBooks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me": {
         parameters: {
             query?: never;
@@ -76,6 +252,54 @@ export interface paths {
             cookie?: never;
         };
         get: operations["me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/copies/{copyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCopy"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/branches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listBranches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/book-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listBookCategories"];
         put?: never;
         post?: never;
         delete?: never;
@@ -103,6 +327,83 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        StudentResponse: {
+            /** Format: int64 */
+            id: number;
+            firstName: string;
+            lastName: string;
+            rollNumber: string;
+            email: string;
+            /** Format: int64 */
+            branchId: number;
+            branchName: string;
+            /** Format: int64 */
+            categoryId: number;
+            categoryName: string;
+            /** Format: int32 */
+            year: number;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REJECTED";
+        };
+        StudentRegistrationRequest: {
+            firstName: string;
+            lastName: string;
+            rollNumber: string;
+            /** Format: email */
+            email: string;
+            /** Format: int64 */
+            branchId: number;
+            /** Format: int64 */
+            categoryId: number;
+            /** Format: int32 */
+            year: number;
+        };
+        IssueLoanRequest: {
+            /** Format: int64 */
+            studentId: number;
+            /** Format: int64 */
+            copyId: number;
+        };
+        LoanResponse: {
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            copyId: number;
+            bookTitle: string;
+            /** Format: int64 */
+            studentId: number;
+            studentName: string;
+            /** Format: date-time */
+            issuedAt: string;
+            /** Format: date-time */
+            dueAt: string;
+            /** Format: date-time */
+            returnedAt?: string;
+        };
+        ReturnLoanRequest: {
+            /** Format: int64 */
+            copyId: number;
+        };
+        CreateBookRequest: {
+            title: string;
+            author: string;
+            description?: string;
+            /** Format: int64 */
+            categoryId: number;
+            /** Format: int32 */
+            copies: number;
+        };
+        CreatedBookResponse: {
+            /** Format: int64 */
+            id: number;
+            title: string;
+            author: string;
+            description?: string;
+            /** Format: int64 */
+            categoryId: number;
+            categoryName: string;
+            copyIds: number[];
+        };
         LoginRequest: {
             username: string;
             password: string;
@@ -117,6 +418,96 @@ export interface components {
             username: string;
             name: string;
             password: string;
+        };
+        StudentPageResponse: {
+            content: components["schemas"]["StudentResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        StudentCategoryResponse: {
+            /** Format: int64 */
+            id: number;
+            name: string;
+            /** Format: int32 */
+            maxLoans: number;
+        };
+        PublicBookPageResponse: {
+            content: components["schemas"]["PublicBookResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        PublicBookResponse: {
+            title: string;
+            author: string;
+            available: boolean;
+        };
+        LoanPageResponse: {
+            content: components["schemas"]["LoanResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        CopyResponse: {
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            bookId: number;
+            title: string;
+            author: string;
+            categoryName: string;
+            /** @enum {string} */
+            status: "AVAILABLE" | "LOANED";
+        };
+        BranchResponse: {
+            /** Format: int64 */
+            id: number;
+            name: string;
+        };
+        BookPageResponse: {
+            content: components["schemas"]["BookSummaryResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        BookSummaryResponse: {
+            /** Format: int64 */
+            id: number;
+            title: string;
+            author: string;
+            /** Format: int64 */
+            categoryId: number;
+            categoryName: string;
+            /** Format: int64 */
+            totalCopies: number;
+            /** Format: int64 */
+            availableCopies: number;
+        };
+        BookCategoryResponse: {
+            /** Format: int64 */
+            id: number;
+            name: string;
         };
     };
     responses: never;
@@ -149,6 +540,195 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    rejectStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResponse"];
+                };
+            };
+        };
+    };
+    approveStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResponse"];
+                };
+            };
+        };
+    };
+    registerStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResponse"];
+                };
+            };
+        };
+    };
+    listLoans: {
+        parameters: {
+            query?: {
+                status?: string;
+                studentId?: number;
+                copyId?: number;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanPageResponse"];
+                };
+            };
+        };
+    };
+    issueLoan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueLoanRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanResponse"];
+                };
+            };
+        };
+    };
+    returnLoan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnLoanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanResponse"];
+                };
+            };
+        };
+    };
+    listBooks: {
+        parameters: {
+            query?: {
+                category?: number;
+                q?: string;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookPageResponse"];
+                };
+            };
+        };
+    };
+    createBook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBookRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedBookResponse"];
                 };
             };
         };
@@ -239,6 +819,117 @@ export interface operations {
             };
         };
     };
+    listStudents: {
+        parameters: {
+            query?: {
+                status?: "PENDING" | "APPROVED" | "REJECTED";
+                branch?: number;
+                year?: number;
+                category?: number;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentPageResponse"];
+                };
+            };
+        };
+    };
+    getStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResponse"];
+                };
+            };
+        };
+    };
+    listStudentYears: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": number[];
+                };
+            };
+        };
+    };
+    listStudentCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentCategoryResponse"][];
+                };
+            };
+        };
+    };
+    searchPublicBooks: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBookPageResponse"];
+                };
+            };
+        };
+    };
     me: {
         parameters: {
             query?: never;
@@ -255,6 +946,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CurrentUserResponse"];
+                };
+            };
+        };
+    };
+    getCopy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                copyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopyResponse"];
+                };
+            };
+        };
+    };
+    listBranches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchResponse"][];
+                };
+            };
+        };
+    };
+    listBookCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookCategoryResponse"][];
                 };
             };
         };

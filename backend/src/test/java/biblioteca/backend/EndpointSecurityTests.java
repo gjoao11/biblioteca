@@ -1,6 +1,8 @@
 package biblioteca.backend;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
@@ -27,7 +30,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class EndpointSecurityTests {
     private static final Set<String> PUBLIC_ENDPOINTS = Set.of(
             "POST /api/auth/login",
-            "POST /api/auth/logout");
+            "POST /api/auth/logout",
+            "GET /api/book-categories",
+            "GET /api/public/books",
+            "GET /api/branches",
+            "GET /api/student-categories",
+            "POST /api/public/student-registrations");
 
     @Autowired
     MockMvc mvc;
@@ -47,6 +55,18 @@ class EndpointSecurityTests {
             int status = perform(endpoint);
             assertThat(status).as(endpoint.toString()).isEqualTo(401);
         }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("publicEndpoints")
+    void anonymousIsNotUnauthorizedOnPublicEndpoint(String endpoint) throws Exception {
+        String[] parts = endpoint.split(" ");
+        int status = perform(new Endpoint(parts[0], parts[1]));
+        assertThat(status).as(endpoint).isNotEqualTo(401);
+    }
+
+    static Stream<String> publicEndpoints() {
+        return PUBLIC_ENDPOINTS.stream().sorted();
     }
 
     @Test

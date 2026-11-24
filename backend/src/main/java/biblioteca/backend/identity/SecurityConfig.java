@@ -34,6 +34,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/book-categories", "/api/public/books",
+                                "/api/branches", "/api/student-categories").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/student-registrations").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
