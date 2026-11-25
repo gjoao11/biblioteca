@@ -3,6 +3,7 @@ package biblioteca.backend.student;
 import biblioteca.backend.TestCsrf;
 import biblioteca.backend.TestFixtures;
 import biblioteca.backend.TestcontainersConfiguration;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +37,9 @@ class StudentRegistrationTests {
 
     @Autowired
     JdbcTemplate jdbc;
+
+    @Autowired
+    StudentRegistrationController controller;
 
     long branchId;
     long categoryId;
@@ -172,6 +177,14 @@ class StudentRegistrationTests {
 
         assertThat(jdbc.queryForObject("SELECT count(*) FROM students WHERE roll_number = ?", Long.class, roll))
                 .isZero();
+    }
+
+    @Test
+    void integrityViolationWithoutConstraintNameIsRethrown() {
+        DataIntegrityViolationException ex = new DataIntegrityViolationException(
+                "not null", new ConstraintViolationException("not null", null, null));
+
+        assertThatThrownBy(() -> controller.handleConcurrentDuplicate(ex)).isSameAs(ex);
     }
 
     private void withRaceTrigger(ThrowingRunnable body) throws Exception {

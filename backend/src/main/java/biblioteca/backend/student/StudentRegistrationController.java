@@ -36,9 +36,10 @@ class StudentRegistrationController {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     ProblemDetail handleConcurrentDuplicate(DataIntegrityViolationException ex) {
-        String field = ex.getCause() instanceof ConstraintViolationException violation
-                ? UNIQUE_FIELDS.get(violation.getConstraintName())
+        String constraint = ex.getCause() instanceof ConstraintViolationException violation
+                ? violation.getConstraintName()
                 : null;
+        String field = constraint != null ? UNIQUE_FIELDS.get(constraint) : null;
         if (field == null) {
             throw ex;
         }
