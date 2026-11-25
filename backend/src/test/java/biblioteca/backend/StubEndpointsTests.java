@@ -26,11 +26,6 @@ class StubEndpointsTests {
     private static final String REGISTRATION = """
             {"firstName":"Ana","lastName":"Lima","rollNumber":"1","email":"ana@example.com",\
             "branchId":1,"categoryId":1,"year":2024}""";
-    private static final String LOAN = """
-            {"studentId":1,"copyId":1}""";
-    private static final String RETURN = """
-            {"copyId":1}""";
-
     @Autowired
     MockMvc mvc;
 
@@ -46,9 +41,6 @@ class StubEndpointsTests {
             GET  | /api/students/1                    |
             POST | /api/students/1/approve            |
             POST | /api/students/1/reject             |
-            POST | /api/loans                         | LOAN
-            POST | /api/loans/return                  | RETURN
-            GET  | /api/loans                         |
             """)
     @WithMockUser
     void stubRespondsNotImplementedWithProblemDetails(String method, String uri, String body) throws Exception {
@@ -76,8 +68,6 @@ class StubEndpointsTests {
         return switch (name) {
             case "BOOK" -> BOOK;
             case "REGISTRATION" -> REGISTRATION;
-            case "LOAN" -> LOAN;
-            case "RETURN" -> RETURN;
             default -> throw new IllegalArgumentException(name);
         };
     }
