@@ -1,11 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PagePlaceholder } from '@/components/layout/page-placeholder'
+import { bookCategoriesQueryOptions } from '@/features/catalog/api'
+import { AddBooksPage } from '@/features/catalog/components/add-books-page'
 
 export const Route = createFileRoute('/_auth/add-books')({
-  component: AddBooksRoute,
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData(bookCategoriesQueryOptions),
+  component: AddBooksPage,
 })
-
-function AddBooksRoute() {
-  return <PagePlaceholder title="Add books" />
-}
