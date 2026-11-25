@@ -12,7 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthAddBooksRouteImport } from './routes/_auth/add-books'
 import { Route as AuthAdminRouteImport } from './routes/_auth/admin'
+import { Route as AuthAllBooksRouteImport } from './routes/_auth/all-books'
+import { Route as AuthCurrentlyIssuedRouteImport } from './routes/_auth/currently-issued'
+import { Route as AuthIssueReturnRouteImport } from './routes/_auth/issue-return'
+import { Route as AuthRegisteredStudentsRouteImport } from './routes/_auth/registered-students'
+import { Route as AuthStudentsForApprovalRouteImport } from './routes/_auth/students-for-approval'
 import { Route as AuthAdminUsersRouteImport } from './routes/_auth/admin/users'
 
 const AuthRoute = AuthRouteImport.update({
@@ -29,9 +35,39 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthAddBooksRoute = AuthAddBooksRouteImport.update({
+  id: '/add-books',
+  path: '/add-books',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthAdminRoute = AuthAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAllBooksRoute = AuthAllBooksRouteImport.update({
+  id: '/all-books',
+  path: '/all-books',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCurrentlyIssuedRoute = AuthCurrentlyIssuedRouteImport.update({
+  id: '/currently-issued',
+  path: '/currently-issued',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthIssueReturnRoute = AuthIssueReturnRouteImport.update({
+  id: '/issue-return',
+  path: '/issue-return',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthRegisteredStudentsRoute = AuthRegisteredStudentsRouteImport.update({
+  id: '/registered-students',
+  path: '/registered-students',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthStudentsForApprovalRoute = AuthStudentsForApprovalRouteImport.update({
+  id: '/students-for-approval',
+  path: '/students-for-approval',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthAdminUsersRoute = AuthAdminUsersRouteImport.update({
@@ -43,12 +79,24 @@ const AuthAdminUsersRoute = AuthAdminUsersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/sign-in': typeof SignInRoute
+  '/add-books': typeof AuthAddBooksRoute
   '/admin': typeof AuthAdminRouteWithChildren
+  '/all-books': typeof AuthAllBooksRoute
+  '/currently-issued': typeof AuthCurrentlyIssuedRoute
+  '/issue-return': typeof AuthIssueReturnRoute
+  '/registered-students': typeof AuthRegisteredStudentsRoute
+  '/students-for-approval': typeof AuthStudentsForApprovalRoute
   '/admin/users': typeof AuthAdminUsersRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
+  '/add-books': typeof AuthAddBooksRoute
   '/admin': typeof AuthAdminRouteWithChildren
+  '/all-books': typeof AuthAllBooksRoute
+  '/currently-issued': typeof AuthCurrentlyIssuedRoute
+  '/issue-return': typeof AuthIssueReturnRoute
+  '/registered-students': typeof AuthRegisteredStudentsRoute
+  '/students-for-approval': typeof AuthStudentsForApprovalRoute
   '/': typeof AuthIndexRoute
   '/admin/users': typeof AuthAdminUsersRoute
 }
@@ -56,20 +104,52 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/_auth/add-books': typeof AuthAddBooksRoute
   '/_auth/admin': typeof AuthAdminRouteWithChildren
+  '/_auth/all-books': typeof AuthAllBooksRoute
+  '/_auth/currently-issued': typeof AuthCurrentlyIssuedRoute
+  '/_auth/issue-return': typeof AuthIssueReturnRoute
+  '/_auth/registered-students': typeof AuthRegisteredStudentsRoute
+  '/_auth/students-for-approval': typeof AuthStudentsForApprovalRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/admin/users': typeof AuthAdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/admin' | '/admin/users'
+  fullPaths:
+    | '/'
+    | '/sign-in'
+    | '/add-books'
+    | '/admin'
+    | '/all-books'
+    | '/currently-issued'
+    | '/issue-return'
+    | '/registered-students'
+    | '/students-for-approval'
+    | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/admin' | '/' | '/admin/users'
+  to:
+    | '/sign-in'
+    | '/add-books'
+    | '/admin'
+    | '/all-books'
+    | '/currently-issued'
+    | '/issue-return'
+    | '/registered-students'
+    | '/students-for-approval'
+    | '/'
+    | '/admin/users'
   id:
     | '__root__'
     | '/_auth'
     | '/sign-in'
+    | '/_auth/add-books'
     | '/_auth/admin'
+    | '/_auth/all-books'
+    | '/_auth/currently-issued'
+    | '/_auth/issue-return'
+    | '/_auth/registered-students'
+    | '/_auth/students-for-approval'
     | '/_auth/'
     | '/_auth/admin/users'
   fileRoutesById: FileRoutesById
@@ -102,11 +182,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/add-books': {
+      id: '/_auth/add-books'
+      path: '/add-books'
+      fullPath: '/add-books'
+      preLoaderRoute: typeof AuthAddBooksRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/admin': {
       id: '/_auth/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthAdminRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/all-books': {
+      id: '/_auth/all-books'
+      path: '/all-books'
+      fullPath: '/all-books'
+      preLoaderRoute: typeof AuthAllBooksRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/currently-issued': {
+      id: '/_auth/currently-issued'
+      path: '/currently-issued'
+      fullPath: '/currently-issued'
+      preLoaderRoute: typeof AuthCurrentlyIssuedRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/issue-return': {
+      id: '/_auth/issue-return'
+      path: '/issue-return'
+      fullPath: '/issue-return'
+      preLoaderRoute: typeof AuthIssueReturnRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/registered-students': {
+      id: '/_auth/registered-students'
+      path: '/registered-students'
+      fullPath: '/registered-students'
+      preLoaderRoute: typeof AuthRegisteredStudentsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/students-for-approval': {
+      id: '/_auth/students-for-approval'
+      path: '/students-for-approval'
+      fullPath: '/students-for-approval'
+      preLoaderRoute: typeof AuthStudentsForApprovalRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/admin/users': {
@@ -132,12 +254,24 @@ const AuthAdminRouteWithChildren = AuthAdminRoute._addFileChildren(
 )
 
 interface AuthRouteChildren {
+  AuthAddBooksRoute: typeof AuthAddBooksRoute
   AuthAdminRoute: typeof AuthAdminRouteWithChildren
+  AuthAllBooksRoute: typeof AuthAllBooksRoute
+  AuthCurrentlyIssuedRoute: typeof AuthCurrentlyIssuedRoute
+  AuthIssueReturnRoute: typeof AuthIssueReturnRoute
+  AuthRegisteredStudentsRoute: typeof AuthRegisteredStudentsRoute
+  AuthStudentsForApprovalRoute: typeof AuthStudentsForApprovalRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthAddBooksRoute: AuthAddBooksRoute,
   AuthAdminRoute: AuthAdminRouteWithChildren,
+  AuthAllBooksRoute: AuthAllBooksRoute,
+  AuthCurrentlyIssuedRoute: AuthCurrentlyIssuedRoute,
+  AuthIssueReturnRoute: AuthIssueReturnRoute,
+  AuthRegisteredStudentsRoute: AuthRegisteredStudentsRoute,
+  AuthStudentsForApprovalRoute: AuthStudentsForApprovalRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 
