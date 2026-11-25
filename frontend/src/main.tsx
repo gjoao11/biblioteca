@@ -1,6 +1,11 @@
 import './index.css'
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -8,10 +13,21 @@ import { createRoot } from 'react-dom/client'
 import { NotFoundPage } from './components/layout/not-found-page.tsx'
 import { RouteError } from './components/layout/route-error.tsx'
 import { RoutePending } from './components/layout/route-pending.tsx'
+import { handleSessionExpiry } from './features/identity/session-expiry.ts'
 import { ApiError } from './lib/api/errors.ts'
 import { routeTree } from './routeTree.gen.ts'
 
-const queryClient = new QueryClient({
+const onError = (error: unknown) =>
+  handleSessionExpiry(error, queryClient, () =>
+    router.navigate({
+      to: '/sign-in',
+      search: { redirect: router.state.location.href },
+    }),
+  )
+
+const queryClient: QueryClient = new QueryClient({
+  queryCache: new QueryCache({ onError }),
+  mutationCache: new MutationCache({ onError }),
   defaultOptions: {
     queries: {
       retry: (failureCount, error) =>
