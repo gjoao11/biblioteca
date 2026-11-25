@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +46,13 @@ interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("select distinct s.year from Student s order by s.year")
     List<Integer> findYears();
+
+    @Query("""
+            select new biblioteca.backend.student.StudentName(s.id, concat(s.firstName, ' ', s.lastName))
+            from Student s
+            where s.id in :ids
+            """)
+    List<StudentName> findNames(@Param("ids") Collection<Long> ids);
 
     boolean existsByRollNumber(String rollNumber);
 

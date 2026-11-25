@@ -2,6 +2,9 @@ package biblioteca.backend.catalog;
 
 import biblioteca.backend.TestFixtures;
 import biblioteca.backend.TestcontainersConfiguration;
+import jakarta.persistence.EntityManagerFactory;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -20,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 class CatalogLoanApiTests {
     @Autowired
     CatalogLoanApi api;
@@ -31,7 +36,11 @@ class CatalogLoanApiTests {
     @Autowired
     JdbcTemplate jdbc;
 
+    @Autowired
+    EntityManagerFactory entityManagerFactory;
+
     long copyId;
+    long otherCopyId;
 
     @BeforeEach
     void setUp() {
@@ -39,6 +48,28 @@ class CatalogLoanApiTests {
         long category = fixtures.bookCategory(TestFixtures.unique("loan-api"));
         long book = fixtures.book(category, "Lockable Book", "Someone", fixtures.user());
         copyId = fixtures.copy(book, "AVAILABLE");
+        long other = fixtures.book(category, "Other Book", "Someone", fixtures.user());
+        otherCopyId = fixtures.copy(other, "LOANED");
+    }
+
+    @Test
+    void D9_20_findsBookTitlesInOneQueryInsideReadOnlyTransaction() {
+        TransactionTemplate readOnly = new TransactionTemplate(tx.getTransactionManager());
+        readOnly.setReadOnly(true);
+        Statistics statistics = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+        statistics.clear();
+
+        Map<Long, String> titles = readOnly.execute(status ->
+                api.findBookTitles(List.of(copyId, otherCopyId, Long.MAX_VALUE)));
+
+        assertThat(titles).containsExactlyInAnyOrderEntriesOf(Map.of(copyId, "Lockable Book", otherCopyId, "Other Book"));
+        assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
+    }
+
+    @Test
+    void findsBookTitlesWithoutTransaction() {
+        assertThat(api.findBookTitles(List.of(copyId))).containsExactly(Map.entry(copyId, "Lockable Book"));
+        assertThat(api.findBookTitles(List.of())).isEmpty();
     }
 
     @Test
@@ -101,6 +132,13 @@ class CatalogLoanApiTests {
         });
 
         assertThat(copyStatus()).isEqualTo("AVAILABLE");
+    }
+
+    @Test
+    void markingUnknownCopyFailsWithClearMessage() {
+        assertThatThrownBy(() -> tx.executeWithoutResult(status -> api.markLoaned(Long.MAX_VALUE)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Copy " + Long.MAX_VALUE + " does not exist");
     }
 
     @Test

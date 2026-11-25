@@ -25,7 +25,8 @@ class BookService {
     CreatedBookResponse createBook(CreateBookRequest request, String username) {
         BookCategory category = categories.findById(request.categoryId())
                 .orElseThrow(() -> invalidField("categoryId", "does not exist"));
-        Long addedBy = books.findUserIdByUsername(username).orElseThrow();
+        Long addedBy = books.findUserIdByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("Signed-in user " + username + " has no row in users"));
         Book book = books.save(new Book(
                 request.title().strip(), request.author().strip(), description(request.description()),
                 category, addedBy));

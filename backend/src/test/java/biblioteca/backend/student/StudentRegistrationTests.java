@@ -5,6 +5,8 @@ import biblioteca.backend.TestFixtures;
 import biblioteca.backend.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -144,6 +147,63 @@ class StudentRegistrationTests {
         register(body("Ana", "Lima", roll, roll + "@example.com", branchId, categoryId, 2024))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errors[*].field").value(containsInAnyOrder("rollNumber", "email")));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @CsvSource({"RollRace, rollNumber", "EmailRace, email"})
+    void D9_16_concurrentDuplicateCaughtByTheDatabaseIsConflict(String scenario, String field) throws Exception {
+        String roll = TestFixtures.unique("R");
+        withRaceTrigger(() -> register(body("Racer", scenario, roll, roll + "@example.com", branchId, categoryId, 2024))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("Student is already registered"))
+                .andExpect(jsonPath("$.errors[*].field").value(containsInAnyOrder(field)))
+                .andExpect(jsonPath("$.errors[0].message").value("is already registered")));
+
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM students WHERE roll_number LIKE ?", Long.class, roll + "%"))
+                .isZero();
+    }
+
+    @Test
+    void otherIntegrityViolationIsNotReportedAsDuplicate() throws Exception {
+        String roll = TestFixtures.unique("R");
+        withRaceTrigger(() -> assertThatThrownBy(() ->
+                register(body("Racer", "OtherViolation", roll, roll + "@example.com", branchId, categoryId, 2024)))
+                .hasStackTraceContaining("students_other_idx"));
+
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM students WHERE roll_number = ?", Long.class, roll))
+                .isZero();
+    }
+
+    private void withRaceTrigger(ThrowingRunnable body) throws Exception {
+        jdbc.execute("""
+                CREATE FUNCTION race_registration() RETURNS trigger LANGUAGE plpgsql AS $$
+                BEGIN
+                    IF NEW.first_name = 'Racer' AND NEW.last_name = 'RollRace' THEN
+                        INSERT INTO students (first_name, last_name, roll_number, email, branch_id, category_id, year)
+                        VALUES ('Winner', 'Student', NEW.roll_number, 'winner-' || NEW.email,
+                                NEW.branch_id, NEW.category_id, NEW.year);
+                    ELSIF NEW.first_name = 'Racer' AND NEW.last_name = 'EmailRace' THEN
+                        INSERT INTO students (first_name, last_name, roll_number, email, branch_id, category_id, year)
+                        VALUES ('Winner', 'Student', NEW.roll_number || 'W', upper(NEW.email),
+                                NEW.branch_id, NEW.category_id, NEW.year);
+                    ELSIF NEW.first_name = 'Racer' AND NEW.last_name = 'OtherViolation' THEN
+                        RAISE EXCEPTION 'duplicate key value violates unique constraint "students_other_idx"'
+                            USING ERRCODE = 'unique_violation', CONSTRAINT = 'students_other_idx';
+                    END IF;
+                    RETURN NEW;
+                END $$""");
+        jdbc.execute("CREATE TRIGGER race_registration BEFORE INSERT ON students "
+                + "FOR EACH ROW EXECUTE FUNCTION race_registration()");
+        try {
+            body.run();
+        } finally {
+            jdbc.execute("DROP TRIGGER race_registration ON students");
+            jdbc.execute("DROP FUNCTION race_registration()");
+        }
+    }
+
+    private interface ThrowingRunnable {
+        void run() throws Exception;
     }
 
     private ResultActions register(String body) throws Exception {

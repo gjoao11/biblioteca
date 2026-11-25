@@ -4,7 +4,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(propagation = Propagation.MANDATORY)
@@ -21,10 +24,24 @@ public class CatalogLoanApi {
     }
 
     public void markLoaned(Long copyId) {
-        copies.findById(copyId).orElseThrow().markLoaned();
+        find(copyId).markLoaned();
     }
 
     public void markAvailable(Long copyId) {
-        copies.findById(copyId).orElseThrow().markAvailable();
+        find(copyId).markAvailable();
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Map<Long, String> findBookTitles(Collection<Long> copyIds) {
+        if (copyIds.isEmpty()) {
+            return Map.of();
+        }
+        return copies.findTitles(copyIds).stream()
+                .collect(Collectors.toMap(CopyTitle::copyId, CopyTitle::title));
+    }
+
+    private Copy find(Long copyId) {
+        return copies.findById(copyId)
+                .orElseThrow(() -> new IllegalStateException("Copy " + copyId + " does not exist"));
     }
 }

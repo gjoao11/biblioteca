@@ -29,7 +29,7 @@ class CopyDetailTests {
 
     @Test
     @WithMockUser
-    void P06_copyDetailShowsItsBookAndStatus() throws Exception {
+    void copyDetailShowsBookAndStatus() throws Exception {
         TestFixtures fixtures = new TestFixtures(jdbc);
         String categoryName = TestFixtures.unique("detail");
         long category = fixtures.bookCategory(categoryName);

@@ -2,6 +2,9 @@ package biblioteca.backend.student;
 
 import biblioteca.backend.TestFixtures;
 import biblioteca.backend.TestcontainersConfiguration;
+import jakarta.persistence.EntityManagerFactory;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -20,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 class StudentLoanApiTests {
     @Autowired
     StudentLoanApi api;
@@ -30,6 +35,9 @@ class StudentLoanApiTests {
 
     @Autowired
     JdbcTemplate jdbc;
+
+    @Autowired
+    EntityManagerFactory entityManagerFactory;
 
     long studentId;
 
@@ -47,6 +55,27 @@ class StudentLoanApiTests {
         LockedStudent student = tx.execute(status -> api.findByIdForUpdate(studentId).orElseThrow());
 
         assertThat(student).isEqualTo(new LockedStudent(studentId, "Ana Lima", StudentStatus.APPROVED, 4));
+    }
+
+    @Test
+    void D9_20_findsStudentNamesInOneQueryInsideReadOnlyTransaction() {
+        long otherId = new TestFixtures(jdbc).student();
+        TransactionTemplate readOnly = new TransactionTemplate(tx.getTransactionManager());
+        readOnly.setReadOnly(true);
+        Statistics statistics = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+        statistics.clear();
+
+        Map<Long, String> names = readOnly.execute(status ->
+                api.findStudentNames(List.of(studentId, otherId, Long.MAX_VALUE)));
+
+        assertThat(names).containsExactlyInAnyOrderEntriesOf(Map.of(studentId, "Ana Lima", otherId, "Fixture Student"));
+        assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
+    }
+
+    @Test
+    void findsStudentNamesWithoutTransaction() {
+        assertThat(api.findStudentNames(List.of(studentId))).containsExactly(Map.entry(studentId, "Ana Lima"));
+        assertThat(api.findStudentNames(List.of())).isEmpty();
     }
 
     @Test

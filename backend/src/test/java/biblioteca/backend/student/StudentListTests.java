@@ -13,15 +13,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -92,19 +89,19 @@ class StudentListTests {
     }
 
     @Test
+    @Transactional
     @WithMockUser
     void D9_13_yearsComeFromTheDatabase() throws Exception {
-        student("Year", 1963, "APPROVED", CSE, "General");
+        jdbc.update("DELETE FROM loans");
+        jdbc.update("DELETE FROM students");
+        student("Year", 2019, "APPROVED", CSE, "General");
         student("Year", 1964, "PENDING", CIVIL, "OBC");
+        student("Year", 2019, "REJECTED", CIVIL, "SC");
+        student("Year", 1987, "PENDING", CSE, "ST");
 
         mvc.perform(get("/api/students/years"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasItems(1963, 1964)))
-                .andExpect(jsonPath("$").value(not(hasItems(1951))));
-
-        List<Integer> years = jdbc.queryForList("SELECT DISTINCT year FROM students ORDER BY year", Integer.class);
-        mvc.perform(get("/api/students/years"))
-                .andExpect(jsonPath("$", hasSize(years.size())));
+                .andExpect(jsonPath("$").value(contains(1964, 1987, 2019)));
     }
 
     @Test
