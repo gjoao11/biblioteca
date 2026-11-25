@@ -21,6 +21,7 @@ import { Route as AuthIssueReturnRouteImport } from './routes/_auth/issue-return
 import { Route as AuthRegisteredStudentsRouteImport } from './routes/_auth/registered-students'
 import { Route as AuthStudentsForApprovalRouteImport } from './routes/_auth/students-for-approval'
 import { Route as AuthAdminUsersRouteImport } from './routes/_auth/admin/users'
+import { Route as AuthCopiesCopyIdRouteImport } from './routes/_auth/copies.$copyId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -81,6 +82,11 @@ const AuthAdminUsersRoute = AuthAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthAdminRoute,
 } as any)
+const AuthCopiesCopyIdRoute = AuthCopiesCopyIdRouteImport.update({
+  id: '/copies/$copyId',
+  path: '/copies/$copyId',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/registered-students': typeof AuthRegisteredStudentsRoute
   '/students-for-approval': typeof AuthStudentsForApprovalRoute
   '/admin/users': typeof AuthAdminUsersRoute
+  '/copies/$copyId': typeof AuthCopiesCopyIdRoute
 }
 export interface FileRoutesByTo {
   '/book': typeof BookRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/students-for-approval': typeof AuthStudentsForApprovalRoute
   '/': typeof AuthIndexRoute
   '/admin/users': typeof AuthAdminUsersRoute
+  '/copies/$copyId': typeof AuthCopiesCopyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_auth/students-for-approval': typeof AuthStudentsForApprovalRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/admin/users': typeof AuthAdminUsersRoute
+  '/_auth/copies/$copyId': typeof AuthCopiesCopyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/registered-students'
     | '/students-for-approval'
     | '/admin/users'
+    | '/copies/$copyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/book'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/students-for-approval'
     | '/'
     | '/admin/users'
+    | '/copies/$copyId'
   id:
     | '__root__'
     | '/_auth'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/_auth/students-for-approval'
     | '/_auth/'
     | '/_auth/admin/users'
+    | '/_auth/copies/$copyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -258,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAdminUsersRouteImport
       parentRoute: typeof AuthAdminRoute
     }
+    '/_auth/copies/$copyId': {
+      id: '/_auth/copies/$copyId'
+      path: '/copies/$copyId'
+      fullPath: '/copies/$copyId'
+      preLoaderRoute: typeof AuthCopiesCopyIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
@@ -282,6 +301,7 @@ interface AuthRouteChildren {
   AuthRegisteredStudentsRoute: typeof AuthRegisteredStudentsRoute
   AuthStudentsForApprovalRoute: typeof AuthStudentsForApprovalRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthCopiesCopyIdRoute: typeof AuthCopiesCopyIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -293,6 +313,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthRegisteredStudentsRoute: AuthRegisteredStudentsRoute,
   AuthStudentsForApprovalRoute: AuthStudentsForApprovalRoute,
   AuthIndexRoute: AuthIndexRoute,
+  AuthCopiesCopyIdRoute: AuthCopiesCopyIdRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
