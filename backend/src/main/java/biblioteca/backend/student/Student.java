@@ -82,4 +82,12 @@ class Student {
     Instant getCreatedAt() {
         return createdAt;
     }
+
+    String getName() {
+        return firstName + " " + lastName;
+    }
+
+    void decide(StudentStatus decision) {
+        status = decision;
+    }
 }
