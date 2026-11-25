@@ -2,8 +2,10 @@ package biblioteca.backend.catalog;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
@@ -15,10 +17,12 @@ class CatalogQueryService {
 
     private final BookCategoryRepository categories;
     private final BookRepository books;
+    private final CopyRepository copies;
 
-    CatalogQueryService(BookCategoryRepository categories, BookRepository books) {
+    CatalogQueryService(BookCategoryRepository categories, BookRepository books, CopyRepository copies) {
         this.categories = categories;
         this.books = books;
+        this.copies = copies;
     }
 
     List<BookCategory> listCategories() {
@@ -27,6 +31,12 @@ class CatalogQueryService {
 
     Page<BookSummary> listBooks(Long categoryId, String q, int page) {
         return books.findSummaries(categoryId, containsPattern(q), CopyStatus.AVAILABLE, PageRequest.of(page, PAGE_SIZE));
+    }
+
+    CopyResponse getCopy(long copyId) {
+        return copies.findWithBookById(copyId)
+                .map(CopyResponse::from)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Copy not found"));
     }
 
     private static String containsPattern(String q) {

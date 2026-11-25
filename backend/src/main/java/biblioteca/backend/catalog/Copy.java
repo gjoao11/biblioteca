@@ -40,4 +40,12 @@ class Copy {
     Instant getCreatedAt() {
         return createdAt;
     }
+
+    void markLoaned() {
+        status = CopyStatus.LOANED;
+    }
+
+    void markAvailable() {
+        status = CopyStatus.AVAILABLE;
+    }
 }
