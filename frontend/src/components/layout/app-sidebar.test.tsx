@@ -1,7 +1,8 @@
-import { screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { SidebarProvider } from '@/components/ui/sidebar'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { type CurrentUser, identityKeys } from '@/features/identity/api'
 import { createTestQueryClient, renderWithRouter } from '@/test/render'
 
@@ -18,6 +19,7 @@ function renderSidebar(user: CurrentUser, path = '/') {
   queryClient.setQueryData(identityKeys.me, user)
   return renderWithRouter(
     <SidebarProvider>
+      <SidebarTrigger />
       <AppSidebar />
     </SidebarProvider>,
     { path, queryClient },
@@ -78,5 +80,35 @@ describe('AppSidebar', () => {
 
     expectCurrent('Home', true)
     expectCurrent('All books', false)
+  })
+
+  describe('on a phone', () => {
+    // Tela estreita: toda media query casa, e o useIsMobile vira true.
+    afterEach(() => {
+      vi.unstubAllGlobals()
+    })
+
+    it.each(['Add books', 'Library'])(
+      'closes the menu after choosing %s',
+      async (name) => {
+        const desktop = window.matchMedia
+        vi.stubGlobal('matchMedia', (query: string) => ({
+          ...desktop(query),
+          matches: true,
+        }))
+        await renderSidebar(librarian)
+
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Toggle Sidebar' }),
+        )
+        await userEvent.click(
+          within(await screen.findByRole('dialog')).getByRole('link', {
+            name,
+          }),
+        )
+
+        await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      },
+    )
   })
 })

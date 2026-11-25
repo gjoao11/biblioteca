@@ -92,7 +92,11 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link to="/" className="px-2 py-1 text-lg font-semibold">
+        <Link
+          to="/"
+          className="px-2 py-1 text-lg font-semibold"
+          onClick={() => setOpenMobile(false)}
+        >
           Library
         </Link>
       </SidebarHeader>
