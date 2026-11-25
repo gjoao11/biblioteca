@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 
 export function NotFoundPage() {
   return (
@@ -9,9 +9,10 @@ export function NotFoundPage() {
       <p className="text-muted-foreground">
         The page you are looking for does not exist.
       </p>
-      <Button nativeButton={false} render={<Link to="/" />}>
+      {/* Link com visual de botão: o Button do Base UI poria role="button" no <a>. */}
+      <Link to="/" className={buttonVariants()}>
         Go to home
-      </Button>
+      </Link>
     </div>
   )
 }
