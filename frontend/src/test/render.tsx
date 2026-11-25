@@ -14,8 +14,11 @@ export function createTestQueryClient() {
   })
 }
 
-export function renderWithQueryClient(ui: ReactElement) {
-  const queryClient = createTestQueryClient()
+// Passe um queryClient próprio para preencher o cache antes de renderizar.
+export function renderWithQueryClient(
+  ui: ReactElement,
+  { queryClient = createTestQueryClient() }: { queryClient?: QueryClient } = {},
+) {
   return {
     queryClient,
     ...render(
