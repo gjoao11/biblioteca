@@ -1,5 +1,6 @@
 package biblioteca.backend.catalog;
 
+import biblioteca.backend.identity.IdentityApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,17 +16,19 @@ class BookService {
     private final BookCategoryRepository categories;
     private final BookRepository books;
     private final CopyRepository copies;
+    private final IdentityApi identity;
 
-    BookService(BookCategoryRepository categories, BookRepository books, CopyRepository copies) {
+    BookService(BookCategoryRepository categories, BookRepository books, CopyRepository copies, IdentityApi identity) {
         this.categories = categories;
         this.books = books;
         this.copies = copies;
+        this.identity = identity;
     }
 
     CreatedBookResponse createBook(CreateBookRequest request, String username) {
         BookCategory category = categories.findById(request.categoryId())
                 .orElseThrow(() -> invalidField("categoryId", "does not exist"));
-        Long addedBy = books.findUserIdByUsername(username)
+        Long addedBy = identity.findIdByUsername(username)
                 .orElseThrow(() -> new IllegalStateException("Signed-in user " + username + " has no row in users"));
         Book book = books.save(new Book(
                 request.title().strip(), request.author().strip(), description(request.description()),
