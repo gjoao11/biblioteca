@@ -1,6 +1,7 @@
 package biblioteca.backend.loan;
 
 import biblioteca.backend.TestCsrf;
+import biblioteca.backend.TestFixtures;
 import biblioteca.backend.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,6 +41,9 @@ class LoanHttpTests {
 
     @Autowired
     MockMvc mvc;
+
+    @Autowired
+    JdbcTemplate jdbc;
 
     @MockitoBean
     StudentLoanPort studentPort;
@@ -79,19 +84,28 @@ class LoanHttpTests {
     @Test
     @WithMockUser
     void P12_issueLoan_happyPath_returns201WithLoanResponse() throws Exception {
-        when(studentPort.findByIdForUpdate(1L)).thenReturn(Optional.of(APPROVED_STUDENT));
-        when(catalogPort.findCopyByIdForUpdate(10L)).thenReturn(Optional.of(AVAILABLE_COPY));
+        var fixtures = new TestFixtures(jdbc);
+        long librarianId = fixtures.user();
+        long catId = fixtures.bookCategory(TestFixtures.unique("http-cat"));
+        long bookId = fixtures.book(catId, "Clean Code", "Robert Martin", librarianId);
+        long copyId = fixtures.copy(bookId, "AVAILABLE");
+        long studentId = fixtures.student();
+
+        when(userResolver.resolveId(any())).thenReturn(librarianId);
+        when(studentPort.findByIdForUpdate(studentId)).thenReturn(Optional.of(
+                new StudentLoanPort.StudentSnapshot(studentId, "Alice Silva",
+                        StudentLoanPort.StudentSnapshot.Status.APPROVED, 2)));
+        when(catalogPort.findCopyByIdForUpdate(copyId)).thenReturn(Optional.of(
+                new CatalogLoanPort.CopySnapshot(copyId, "Clean Code", true)));
 
         mvc.perform(post("/api/loans")
                         .with(TestCsrf.token(mvc))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"studentId":1,"copyId":10}
-                                """))
+                        .content(String.format("{\"studentId\":%d,\"copyId\":%d}", studentId, copyId)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.studentId").value(1))
-                .andExpect(jsonPath("$.copyId").value(10))
+                .andExpect(jsonPath("$.studentId").value(studentId))
+                .andExpect(jsonPath("$.copyId").value(copyId))
                 .andExpect(jsonPath("$.bookTitle").value("Clean Code"))
                 .andExpect(jsonPath("$.studentName").value("Alice Silva"))
                 .andExpect(jsonPath("$.dueAt").isNotEmpty())
@@ -342,6 +356,9 @@ class LoanHttpTests {
     @Test
     @WithMockUser
     void D9_10_D9_17_listLoans_returnsPagedStructure() throws Exception {
+        when(catalogPort.findCopyByIdForUpdate(any())).thenReturn(Optional.of(AVAILABLE_COPY));
+        when(studentPort.findByIdForUpdate(any())).thenReturn(Optional.of(APPROVED_STUDENT));
+
         mvc.perform(get("/api/loans").param("status", "open"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
