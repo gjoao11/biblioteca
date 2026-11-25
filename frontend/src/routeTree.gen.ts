@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as BookRouteImport } from './routes/book'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthAddBooksRouteImport } from './routes/_auth/add-books'
@@ -23,6 +24,11 @@ import { Route as AuthAdminUsersRouteImport } from './routes/_auth/admin/users'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -78,6 +84,7 @@ const AuthAdminUsersRoute = AuthAdminUsersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
+  '/book': typeof BookRoute
   '/sign-in': typeof SignInRoute
   '/add-books': typeof AuthAddBooksRoute
   '/admin': typeof AuthAdminRouteWithChildren
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthAdminUsersRoute
 }
 export interface FileRoutesByTo {
+  '/book': typeof BookRoute
   '/sign-in': typeof SignInRoute
   '/add-books': typeof AuthAddBooksRoute
   '/admin': typeof AuthAdminRouteWithChildren
@@ -103,6 +111,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
+  '/book': typeof BookRoute
   '/sign-in': typeof SignInRoute
   '/_auth/add-books': typeof AuthAddBooksRoute
   '/_auth/admin': typeof AuthAdminRouteWithChildren
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/book'
     | '/sign-in'
     | '/add-books'
     | '/admin'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/book'
     | '/sign-in'
     | '/add-books'
     | '/admin'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
+    | '/book'
     | '/sign-in'
     | '/_auth/add-books'
     | '/_auth/admin'
@@ -156,6 +168,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
+  BookRoute: typeof BookRoute
   SignInRoute: typeof SignInRoute
 }
 
@@ -166,6 +179,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -279,6 +299,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
+  BookRoute: BookRoute,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
