@@ -5,22 +5,12 @@ import {
 } from '@tanstack/react-query'
 import { useId } from 'react'
 
-import { ErrorMessage } from '@/components/error-message'
-import { RoutePending } from '@/components/layout/route-pending'
-import { PaginationNav } from '@/components/pagination-nav'
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from '@/components/ui/empty'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { cn } from '@/lib/utils'
 
 import { bookCategoriesQueryOptions, booksQueryOptions } from '../api'
 import type { AllBooksSearch } from '../schemas'
-import { BooksTable } from './books-table'
+import { BookResults } from './book-results'
 
 interface AllBooksPageProps {
   search: AllBooksSearch
@@ -65,33 +55,12 @@ export function AllBooksPage({ search, onSearchChange }: AllBooksPageProps) {
           ))}
         </NativeSelect>
       </Field>
-      {books.isPending ? (
-        <RoutePending />
-      ) : books.isError ? (
-        <ErrorMessage error={books.error} onRetry={() => books.refetch()} />
-      ) : books.data.content.length === 0 ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyTitle>
-              {category ? 'No books in this category' : 'No books yet'}
-            </EmptyTitle>
-            <EmptyDescription>
-              New books show up here after they are added.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <div
-          aria-busy={books.isPlaceholderData}
-          className={cn(
-            'flex flex-col gap-4 transition-opacity',
-            books.isPlaceholderData && 'opacity-60',
-          )}
-        >
-          <BooksTable books={books.data.content} />
-          <PaginationNav page={page ?? 1} totalPages={books.data.totalPages} />
-        </div>
-      )}
+      <BookResults
+        books={books}
+        page={page}
+        emptyTitle={category ? 'No books in this category' : 'No books yet'}
+        emptyDescription="New books show up here after they are added."
+      />
     </div>
   )
 }
