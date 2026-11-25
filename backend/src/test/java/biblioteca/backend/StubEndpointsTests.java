@@ -21,8 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class StubEndpointsTests {
-    private static final String BOOK = """
-            {"title":"T","author":"A","categoryId":1,"copies":1}""";
     private static final String REGISTRATION = """
             {"firstName":"Ana","lastName":"Lima","rollNumber":"1","email":"ana@example.com",\
             "branchId":1,"categoryId":1,"year":2024}""";
@@ -36,8 +34,6 @@ class StubEndpointsTests {
 
     @ParameterizedTest(name = "{0} {1}")
     @CsvSource(delimiter = '|', textBlock = """
-            POST | /api/books                         | BOOK
-            GET  | /api/copies/1                      |
             GET  | /api/branches                      |
             GET  | /api/student-categories            |
             POST | /api/public/student-registrations  | REGISTRATION
@@ -74,7 +70,6 @@ class StubEndpointsTests {
 
     private static String body(String name) {
         return switch (name) {
-            case "BOOK" -> BOOK;
             case "REGISTRATION" -> REGISTRATION;
             case "LOAN" -> LOAN;
             case "RETURN" -> RETURN;

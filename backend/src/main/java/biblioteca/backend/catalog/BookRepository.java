@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 interface BookRepository extends JpaRepository<Book, Long> {
     @Query(value = """
             select new biblioteca.backend.catalog.BookSummary(
@@ -30,4 +32,7 @@ interface BookRepository extends JpaRepository<Book, Long> {
             @Param("pattern") String pattern,
             @Param("available") CopyStatus available,
             Pageable pageable);
+
+    @Query(value = "select id from users where username = :username", nativeQuery = true)
+    Optional<Long> findUserIdByUsername(@Param("username") String username);
 }
