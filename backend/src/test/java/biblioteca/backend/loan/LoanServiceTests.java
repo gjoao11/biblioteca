@@ -192,6 +192,27 @@ class LoanServiceTests {
                 .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode().value()).isEqualTo(404));
     }
 
+    @Test
+    void P02_P10_returnLoan_happyPath_marksLoanReturnedAndCopyAvailable() {
+        // Exemplar que já foi emprestado (FakeCatalogLoanPort: available = false)
+        when(loanRepository.findByCopyIdAndReturnedAtIsNull(loanedCopy.copyId()))
+                .thenReturn(java.util.Optional.of(new Loan(
+                        loanedCopy.copyId(),
+                        approvedStudent.id(),
+                        LIBRARIAN_ID,
+                        FIXED_NOW.minus(14, java.time.temporal.ChronoUnit.DAYS),
+                        FIXED_NOW)));
+
+        LoanResponse response = service.returnLoan(new ReturnLoanRequest(loanedCopy.copyId()));
+
+        assertThat(response.returnedAt()).isEqualTo(FIXED_NOW);
+        assertThat(response.copyId()).isEqualTo(loanedCopy.copyId());
+        assertThat(response.bookTitle()).isEqualTo("Domain-Driven Design");
+        assertThat(response.studentName()).isEqualTo("Alice Silva");
+        // Após a devolução bem-sucedida, o exemplar volta a ficar disponível
+        assertThat(catalogPort.isLoaned(loanedCopy.copyId())).isFalse();
+    }
+
     // -------------------------------------------------------------------------
     // issueLoan — verificações executadas na ordem certa
     // -------------------------------------------------------------------------

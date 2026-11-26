@@ -77,6 +77,16 @@ class LoanService {
 
     @Transactional
     LoanResponse returnLoan(ReturnLoanRequest request) {
+        // Trava o exemplar com lock pessimista ANTES de buscar o empréstimo.
+        // Sem isso, duas devoluções concorrentes do mesmo exemplar podem ambas
+        // encontrar o empréstimo aberto e marcar o exemplar como disponível duas
+        // vezes. Se entre elas o exemplar for reemprestado, a segunda devolução
+        // marcaria um exemplar emprestado como disponível e o próximo empréstimo
+        // daria erro 500.
+        catalogPort.findCopyByIdForUpdate(request.copyId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No open loan for this copy"));
+
         Loan loan = loanRepository.findByCopyIdAndReturnedAtIsNull(request.copyId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "No open loan for this copy"));

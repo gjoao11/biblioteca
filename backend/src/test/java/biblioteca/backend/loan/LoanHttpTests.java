@@ -320,20 +320,30 @@ class LoanHttpTests {
     @Test
     @WithMockUser
     void P02_P10_returnLoan_happyPath_returns200() throws Exception {
-        when(catalogPort.findBookTitles(any())).thenReturn(Map.of(10L, "Clean Code"));
-        when(studentPort.findStudentNames(any())).thenReturn(Map.of(1L, "Alice Silva"));
+        var fixtures = new TestFixtures(jdbc);
+        long librarianId = fixtures.user();
+        long catId = fixtures.bookCategory(TestFixtures.unique("http-cat"));
+        long bookId = fixtures.book(catId, "Clean Code", "Robert Martin", librarianId);
+        long copyId = fixtures.copy(bookId, "LOANED");
+        long studentId = fixtures.student();
+        fixtures.openLoan(copyId, studentId, librarianId);
+
+        when(userResolver.resolveId(any())).thenReturn(librarianId);
+        when(catalogPort.findCopyByIdForUpdate(copyId)).thenReturn(Optional.of(
+                new CatalogLoanPort.CopySnapshot(copyId, "Clean Code", false)));
+        when(catalogPort.findBookTitles(any())).thenReturn(Map.of(copyId, "Clean Code"));
+        when(studentPort.findStudentNames(any())).thenReturn(Map.of(studentId, "Alice Silva"));
 
         mvc.perform(post("/api/loans/return")
                         .with(TestCsrf.token(mvc))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"copyId":10}
-                                """))
-                // Sem empréstimo aberto no banco (mocks não configuram findByCopyIdAndReturnedAtIsNull),
-                // o serviço vai lançar 404. Este cenário de "sem aberto" valida o mapeamento HTTP;
-                // o caminho feliz completo requer banco real (D9-03 em LoanIntegrationTests futuro).
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON));
+                        .content(String.format("{\"copyId\":%d}", copyId)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.copyId").value(copyId))
+                .andExpect(jsonPath("$.bookTitle").value("Clean Code"))
+                .andExpect(jsonPath("$.studentId").value(studentId))
+                .andExpect(jsonPath("$.returnedAt").isNotEmpty());
     }
 
     // =========================================================================
