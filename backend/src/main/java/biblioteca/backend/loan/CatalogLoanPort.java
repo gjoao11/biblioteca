@@ -1,5 +1,7 @@
 package biblioteca.backend.loan;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -21,6 +23,12 @@ interface CatalogLoanPort {
 
     /** Muda o status do exemplar para AVAILABLE. */
     void markAvailable(Long copyId);
+
+    /**
+     * Busca os títulos dos livros para um conjunto de IDs de exemplares.
+     * Usado para evitar N+1 na listagem de empréstimos.
+     */
+    Map<Long, String> findBookTitles(Collection<Long> copyIds);
 
     record CopySnapshot(Long copyId, String bookTitle, boolean available) {
     }
