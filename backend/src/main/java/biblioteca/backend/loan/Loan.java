@@ -61,4 +61,8 @@ class Loan {
     Instant getReturnedAt() {
         return returnedAt;
     }
+
+    void markReturned(java.time.Instant returnedAt) {
+        this.returnedAt = returnedAt;
+    }
 }
