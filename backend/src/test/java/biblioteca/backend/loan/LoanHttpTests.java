@@ -17,7 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -318,8 +320,8 @@ class LoanHttpTests {
     @Test
     @WithMockUser
     void P02_P10_returnLoan_happyPath_returns200() throws Exception {
-        when(catalogPort.findCopyByIdForUpdate(10L)).thenReturn(Optional.of(AVAILABLE_COPY));
-        when(studentPort.findByIdForUpdate(1L)).thenReturn(Optional.of(APPROVED_STUDENT));
+        when(catalogPort.findBookTitles(any())).thenReturn(Map.of(10L, "Clean Code"));
+        when(studentPort.findStudentNames(any())).thenReturn(Map.of(1L, "Alice Silva"));
 
         mvc.perform(post("/api/loans/return")
                         .with(TestCsrf.token(mvc))
@@ -356,8 +358,8 @@ class LoanHttpTests {
     @Test
     @WithMockUser
     void D9_10_D9_17_listLoans_returnsPagedStructure() throws Exception {
-        when(catalogPort.findCopyByIdForUpdate(any())).thenReturn(Optional.of(AVAILABLE_COPY));
-        when(studentPort.findByIdForUpdate(any())).thenReturn(Optional.of(APPROVED_STUDENT));
+        when(catalogPort.findBookTitles(any())).thenReturn(Map.of());
+        when(studentPort.findStudentNames(any())).thenReturn(Map.of());
 
         mvc.perform(get("/api/loans").param("status", "open"))
                 .andExpect(status().isOk())

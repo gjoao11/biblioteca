@@ -1,8 +1,10 @@
 package biblioteca.backend.loan;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Dublê em memória de {@link CatalogLoanPort} para testes unitários do LoanService.
@@ -34,7 +36,15 @@ class FakeCatalogLoanPort implements CatalogLoanPort {
         store.computeIfPresent(copyId, (id, c) -> new CopyData(id, c.bookTitle(), true));
     }
 
+    @Override
+    public Map<Long, String> findBookTitles(Collection<Long> copyIds) {
+        return copyIds.stream()
+                .filter(store::containsKey)
+                .collect(Collectors.toMap(id -> id, id -> store.get(id).bookTitle()));
+    }
+
     boolean isLoaned(Long copyId) {
         return store.containsKey(copyId) && !store.get(copyId).available();
     }
 }
+
