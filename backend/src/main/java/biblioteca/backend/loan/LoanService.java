@@ -8,6 +8,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
 
 @Service
 class LoanService {
@@ -82,14 +84,13 @@ class LoanService {
         loan.markReturned(clock.instant());
         catalogPort.markAvailable(loan.getCopyId());
 
-        // Para montar o response, precisamos dos nomes — usamos os snapshots via
-        // findCopyByIdForUpdate (sem for-update aqui; apenas leitura é suficiente)
-        var copy = catalogPort.findCopyByIdForUpdate(loan.getCopyId())
-                .orElseThrow();
-        var student = studentPort.findByIdForUpdate(loan.getStudentId())
-                .orElseThrow();
+        // Busca nomes em lote (conjunto de 1 elemento) para reutilizar a mesma API de listagem
+        String bookTitle = catalogPort.findBookTitles(List.of(loan.getCopyId()))
+                .getOrDefault(loan.getCopyId(), "");
+        String studentName = studentPort.findStudentNames(List.of(loan.getStudentId()))
+                .getOrDefault(loan.getStudentId(), "");
 
-        return toResponse(loan, copy.bookTitle(), student.name());
+        return toResponse(loan, bookTitle, studentName);
     }
 
     // -------------------------------------------------------------------------
@@ -102,13 +103,19 @@ class LoanService {
         var pageable = org.springframework.data.domain.PageRequest.of(page, pageSize);
         var pageResult = loanRepository.findFiltered(status, studentId, copyId, pageable);
 
-        var content = pageResult.getContent().stream()
-                .map(loan -> {
-                    // Leitura simples — sem lock
-                    var copy = catalogPort.findCopyByIdForUpdate(loan.getCopyId()).orElseThrow();
-                    var student = studentPort.findByIdForUpdate(loan.getStudentId()).orElseThrow();
-                    return toResponse(loan, copy.bookTitle(), student.name());
-                })
+        var loans = pageResult.getContent();
+
+        // Busca nomes em lote — evita N+1
+        var copyIds = loans.stream().map(Loan::getCopyId).toList();
+        var studentIds = loans.stream().map(Loan::getStudentId).toList();
+        Map<Long, String> bookTitles = copyIds.isEmpty() ? Map.of() : catalogPort.findBookTitles(copyIds);
+        Map<Long, String> studentNames = studentIds.isEmpty() ? Map.of() : studentPort.findStudentNames(studentIds);
+
+        var content = loans.stream()
+                .map(loan -> toResponse(
+                        loan,
+                        bookTitles.getOrDefault(loan.getCopyId(), ""),
+                        studentNames.getOrDefault(loan.getStudentId(), "")))
                 .toList();
 
         return new LoanPageResponse(
