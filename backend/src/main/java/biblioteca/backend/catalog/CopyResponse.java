@@ -9,4 +9,10 @@ record CopyResponse(
         @NotNull String author,
         @NotNull String categoryName,
         @NotNull CopyStatus status) {
+    static CopyResponse from(Copy copy) {
+        Book book = copy.getBook();
+        return new CopyResponse(
+                copy.getId(), book.getId(), book.getTitle(), book.getAuthor(), book.getCategory().getName(),
+                copy.getStatus());
+    }
 }

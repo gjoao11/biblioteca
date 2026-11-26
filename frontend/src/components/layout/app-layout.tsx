@@ -1,33 +1,27 @@
-import { Link, Outlet } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 
-import { useCurrentUser } from '@/features/identity/api'
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar'
 import { UserMenu } from '@/features/identity/components/user-menu'
 
-export function AppLayout() {
-  const user = useCurrentUser()
+import { AppSidebar } from './app-sidebar'
 
+export function AppLayout() {
   return (
-    <div className="min-h-svh">
-      <header className="flex items-center justify-between border-b px-4 py-3">
-        <nav className="flex items-center gap-6">
-          <Link to="/" className="font-semibold">
-            Library
-          </Link>
-          {user.role === 'ADMIN' && (
-            <Link
-              to="/admin/users"
-              className="text-muted-foreground hover:text-foreground text-sm"
-              activeProps={{ className: 'text-foreground' }}
-            >
-              Users
-            </Link>
-          )}
-        </nav>
-        <UserMenu />
-      </header>
-      <main className="p-4">
-        <Outlet />
-      </main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-14 items-center justify-between gap-2 border-b px-4">
+          <SidebarTrigger />
+          <UserMenu />
+        </header>
+        <div className="p-4">
+          <Outlet />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

@@ -14,4 +14,11 @@ record StudentResponse(
         @NotNull String categoryName,
         @NotNull Integer year,
         @NotNull StudentStatus status) {
+    static StudentResponse from(Student student) {
+        return new StudentResponse(
+                student.getId(), student.getFirstName(), student.getLastName(), student.getRollNumber(),
+                student.getEmail(), student.getBranch().getId(), student.getBranch().getName(),
+                student.getCategory().getId(), student.getCategory().getName(), student.getYear(),
+                student.getStatus());
+    }
 }

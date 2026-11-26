@@ -1,5 +1,5 @@
 package biblioteca.backend.student;
 
-enum StudentStatus {
+public enum StudentStatus {
     PENDING, APPROVED, REJECTED
 }

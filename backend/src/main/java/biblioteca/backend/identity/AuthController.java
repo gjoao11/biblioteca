@@ -96,9 +96,9 @@ class AuthController {
         return users.findByUsername(authentication.getName())
                 .filter(User::isEnabled)
                 .map(user -> ResponseEntity.ok(CurrentUserResponse.from(user)))
-                .orElseGet(() -> {
+                .orElseThrow(() -> {
                     logout(authentication, request, response);
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                    return SecurityProblemHandler.unauthorized(request, null);
                 });
     }
 

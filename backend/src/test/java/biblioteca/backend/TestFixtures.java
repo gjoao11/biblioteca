@@ -18,9 +18,13 @@ public final class TestFixtures {
     }
 
     public long user() {
+        return user(unique("fixture"));
+    }
+
+    public long user(String username) {
         return jdbc.queryForObject(
                 "INSERT INTO users (username, name, password_hash, role) VALUES (?, 'Fixture', 'x', 'LIBRARIAN') RETURNING id",
-                Long.class, unique("fixture"));
+                Long.class, username);
     }
 
     public long bookCategory(String name) {
